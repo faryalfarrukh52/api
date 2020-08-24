@@ -1,11 +1,20 @@
 <?php
 
-namespace App\Http\Controllers;
+// namespace App\Http\Controllers;
 
+// use App\Model\Product;
+// use Illuminate\Http\Request;
+// use App\Http\Resources\Product\ProductResource;
+// use App\Http\Resources\Product\ProductCollection;
+
+namespace App\Http\Controllers;
+use App\Http\Requests\ProductRequest;
+use App\Http\Resources\Product\ProductCollection;
+use App\Http\Resources\Product\ProductResource;
 use App\Model\Product;
 use Illuminate\Http\Request;
-use App\Http\Resources\Product\ProductResource;
-use App\Http\Resources\Product\ProductCollection;
+use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
 
 class ProductController extends Controller
 {
@@ -16,7 +25,12 @@ class ProductController extends Controller
      */
     public function index()
     {
-        return Product::all();
+     //  return product::all();
+       //return new ProductCollection(Product::all());
+       //return ProductCollection::collection(Product::all());
+      // return $data->toArray($data);
+        
+      return ProductCollection::collection(Product::paginate(20));
         
     }
 
@@ -36,9 +50,21 @@ class ProductController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(ProductRequest $request)
     {
-        //
+        $product = new Product;
+        $product->name = $request->name;
+        $product->detail = $request->description;
+        $product->price = $request->price;
+        $product->stock = $request->stock;
+        $product->discount = $request->discount;
+
+        $product->save();
+
+        return response([
+            'data' => new ProductResource($product)
+
+        ], Response::HTTP_CREATED);
     }
 
     /**
@@ -49,7 +75,7 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-        
+        //return $product;
         return new ProductResource($product);
     }
 
